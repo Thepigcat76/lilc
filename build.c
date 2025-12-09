@@ -41,7 +41,7 @@ static void publish();
 static int move_file(const char *src, const char *dst);
 
 int main(int argc, char **argv) {
-  publish();
+  // publish();
   if (argc >= 2) {
     if (STR_CMP_OR(argv[1], "-r", "--release")) {
       OPTS.release = true;
@@ -49,8 +49,15 @@ int main(int argc, char **argv) {
     }
   }
 
+  bool make_lib = argc >= 2 && STR_CMP_OR(argv[1], "p", "publish");
+
   char *compiler = build_compiler(OPTS.compiler, OPTS.target);
-  collect_src_files_for_cache("./src/");
+  char *files;
+  if (make_lib) {
+    collect_src_files_for_cache("./src/");
+  } else {
+    files = collect_src_files("./src/");
+  }
   char *libraries = link_libs_target(OPTS.libraries, OPTS.target);
   char *flags = build_flags(&OPTS);
   char *out_name = build_name(OPTS.out_name, OPTS.target);
@@ -58,13 +65,20 @@ int main(int argc, char **argv) {
   char *extra_flags = build_ex_flags(OPTS.extra_flags);
 
   make_dir(OPTS.out_dir);
-  cached_compile(compiler, libraries, flags, defined_flags, extra_flags,
-                 OPTS.out_dir, out_name);
+  if (make_lib) {
+    cached_compile(compiler, libraries, flags, defined_flags, extra_flags,
+                   OPTS.out_dir, out_name);
+  } else {
+    compile("%s %s %s %s -o %s%s", OPTS.compiler, files, libraries, flags,
+            OPTS.out_dir, out_name);
+  }
   printf("Comand: %s\n", _internal_cmd_buf);
 
-  if (move_file("./build/lilc.a", "/usr/lib/liblilc.a") == -1) {
-    perror("rename failed");
-    return EXIT_FAILURE;
+  if (make_lib) {
+    if (move_file("./build/lilc.a", "/usr/lib/liblilc.a") == -1) {
+      perror("rename failed");
+      return EXIT_FAILURE;
+    }
   }
 
   if (argc >= 2) {
