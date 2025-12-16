@@ -1,4 +1,5 @@
 #include "../include/hash.h"
+#include <stddef.h>
 
 int32_t strv_hash(const void *a) {
   const char *str = (char *)a;
@@ -18,4 +19,8 @@ int32_t strv_hash(const void *a) {
 
 int32_t str_ptrv_hash(const void *str_ptr) {
   return strv_hash(*(char **)str_ptr);
+}
+
+int32_t size_tv_hash(const void *size_ptr) {
+  return *(size_t *) size_ptr;
 }

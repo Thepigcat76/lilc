@@ -3,7 +3,7 @@
 #include "../include/eq.h"
 #include <stdio.h>
 
-int main(void) {
+int _main(void) {
   Hashmap(char *, int) map = hashmap_new(char **, int, &HEAP_ALLOCATOR, str_ptrv_hash, str_ptrv_eq, NULL);
   char *jeff_k = "Jeff";
   int jeff = 100;
