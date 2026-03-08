@@ -9,6 +9,7 @@ typedef struct {
 } Allocator;
 
 extern Allocator HEAP_ALLOCATOR;
+extern Allocator NULL_ALLOCATOR;
 
 #define BUMP_ALLOCATOR(name, bump_ptr)                                                                                 \
   static void *_internal_##name##_alloc(size_t bytes) { return bump_alloc(bump_ptr, bytes); };                                       \

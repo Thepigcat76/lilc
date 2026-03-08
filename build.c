@@ -32,6 +32,7 @@ static BuildOptions OPTS = {.compiler = "clang",
                             .debug = true,
                             .release = false,
                             .std = "gnu23",
+                            .libraries = ARRAY(),
                             .target = TARGET_LINUX,
                             .out_dir = "./build/",
                             .out_name = "lilc"};

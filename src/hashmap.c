@@ -97,9 +97,7 @@ bool hashmap_insert(struct _internal_hashmap *hashmap, void *key, void *val) {
   } else {
     // Key is not present
     struct _internal_hashmap_node *node = &hashmap->values[index];
-    printf("Isnerting Key: %s\n", *(char **) key);
     _internal_array_add(&node->keys, key, hashmap->header.key_type_size);
-    printf("Inserted into nodes\n");
     _internal_array_add(&node->values, val, hashmap->header.value_type_size);
     _internal_array_add(&hashmap->keys, key, hashmap->header.key_type_size);
     hashmap->len++;
