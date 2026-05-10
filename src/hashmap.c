@@ -10,7 +10,7 @@ struct _internal_hashmap
 _internal_hashmap_new(struct _internal_hashmap_header h) {
   struct _internal_hashmap map = (struct _internal_hashmap){
       .keys = _internal_array_new(h.capacity, h.key_type_size, h.allocator),
-      .values = h.allocator->alloc(h.capacity *
+      .values = h.allocator->alloc(h.allocator, h.capacity *
                                    sizeof(struct _internal_hashmap_node)),
       .header = h,
   };
@@ -37,7 +37,8 @@ ssize_t
 _internal_hashmap_node_contains_key(const struct _internal_hashmap_node *node,
                                     const void *key,
                                     const struct _internal_hashmap_header *h) {
-  if (node->keys == NULL) return -1;
+  if (node->keys == NULL)
+    return -1;
 
   for (size_t i = 0; i < array_len(node->keys); i++) {
     void *key_at_index = (void *)((uint8_t *)node->keys) + i * h->key_type_size;
@@ -130,12 +131,23 @@ void *_internal_hashmap_value(struct _internal_hashmap *hashmap,
   if (key_index == -1)
     return NULL;
 
-  void *val = ((void *) ((uint8_t *) node->values) + key_index * hashmap->header.value_type_size);
+  void *val = ((void *)((uint8_t *)node->values) +
+               key_index * hashmap->header.value_type_size);
 
   return val;
 }
 
 void hashmap_free(struct _internal_hashmap *hashmap) {
-  //free(hashmap->keys);
-  //free(hashmap->values);
+  size_t hashmap_keys_len = array_len(hashmap->keys);
+  for (size_t i = 0; i < hashmap_keys_len; i++) {
+    void *key = ((uint8_t *)hashmap->keys) + i * hashmap->header.key_type_size;
+    int hash = hashmap->header.key_hash_func(key);
+    size_t hashed_index = hash % hashmap->header.capacity;
+    struct _internal_hashmap_node *value_node = &hashmap->values[hashed_index];
+
+    array_free(value_node->values);
+    array_free(value_node->keys);
+  }
+  hashmap->header.allocator->dealloc(hashmap->header.allocator, hashmap->values);
+  array_free(hashmap->keys);
 }

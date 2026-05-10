@@ -6,19 +6,20 @@
 
 #define DEFAULT_CAPACITY 16
 
-void dyn_string_init(dyn_string_t *str) {
+void dyn_string_init(dyn_string_t *str, const Allocator *allocator) {
   if (str->capacity <= 0)
     str->capacity = DEFAULT_CAPACITY;
-  str->string = malloc(str->capacity);
+  str->string = allocator->alloc(allocator, str->capacity);
   str->string[0] = '\0';
   str->len = 0;
   str->term_len = 1;
+  str->allocator = allocator;
 }
 
 void dyn_string_add_char(dyn_string_t *str, char c) {
   if (str->term_len + 1 >= str->capacity) {
     str->capacity *= 2;
-    str->string = realloc(str->string, str->capacity);
+    str->string = allocator_realloc(str->allocator, str->string, str->term_len, str->capacity);
   }
 
   str->string[str->len] = c;
@@ -37,7 +38,7 @@ void dyn_string_add_str(dyn_string_t *str, const char *c) {
       str->capacity *= 2;
     }
 
-    str->string = realloc(str->string, str->capacity);
+    str->string = allocator_realloc(str->allocator, str->string, str->term_len, str->capacity);
   }
 
   for (size_t i = 0; i < len; i++) {
@@ -51,7 +52,7 @@ void dyn_string_add_str(dyn_string_t *str, const char *c) {
 static void dyn_string_reserve(dyn_string_t *str, size_t len) {
   if (str->capacity <= len + 1) {
     str->capacity = len + 1;
-    str->string = realloc(str->string, str->capacity);
+    str->string = allocator_realloc(str->allocator, str->string, str->term_len, str->capacity);
   }
 }
 
@@ -86,7 +87,7 @@ void dyn_string_printf(dyn_string_t *str, const char *fmt, ...) {
 void dyn_string_copy(dyn_string_t *dest, const dyn_string_t *src) {
   if (src->term_len >= dest->capacity) {
     dest->capacity = src->term_len;
-    dest->string = realloc(dest->string, dest->capacity);
+    dest->string = allocator_realloc(dest->allocator, dest->string, dest->term_len, dest->capacity);
   }
 
   strcpy(dest->string, src->string);
@@ -99,7 +100,7 @@ void dyn_string_copy_str(dyn_string_t *dest, const char *src) {
 
   if (src_len >= dest->capacity) {
     dest->capacity = src_len;
-    dest->string = realloc(dest->string, dest->capacity);
+    dest->string = allocator_realloc(dest->allocator, dest->string, dest->term_len, dest->capacity);
   }
 
   strcpy(dest->string, src);
@@ -114,7 +115,7 @@ void dyn_string_clear(dyn_string_t *str) {
 }
 
 void dyn_string_free(dyn_string_t *str) {
-  free(str->string);
+  str->allocator->dealloc(str->allocator, str->string);
   str->len = 0;
   str->term_len = 0;
   str->capacity = 0;

@@ -3,17 +3,20 @@
 #include "bump.h"
 #include <stdlib.h>
 
-typedef struct {
-  void *(*alloc)(size_t bytes);
-  void (*dealloc)(void *ptr);
+typedef struct allocator {
+  void *(*alloc)(const struct allocator *, size_t bytes);
+  void (*dealloc)(const struct allocator *, void *ptr);
+  void *context;
 } Allocator;
 
 extern Allocator HEAP_ALLOCATOR;
 extern Allocator NULL_ALLOCATOR;
 
-#define BUMP_ALLOCATOR(name, bump_ptr)                                                                                 \
-  static void *_internal_##name##_alloc(size_t bytes) { return bump_alloc(bump_ptr, bytes); };                                       \
-  static void _internal_##name##_dealloc(void *ptr){};                                                                 \
-  static Allocator name = {.alloc = _internal_##name##_alloc, .dealloc = _internal_##name##_dealloc };
+void *allocator_realloc(const Allocator *allocator, void *ptr, size_t old_size, size_t bytes);
+
+void *heap_alloc(size_t bytes);
+void heap_dealloc(void *ptr);
+
+void bump_allocator_init(Allocator *allocator, Bump *bump);
 
 void alloc_init();

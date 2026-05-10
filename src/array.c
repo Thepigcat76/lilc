@@ -1,12 +1,13 @@
 #include "../include/array.h"
+#include "../include/numbers.h"
 #include <stdio.h>
 #include <string.h>
 
 void *_internal_array_new(size_t capacity, size_t item_size,
-                          Allocator *allocator) {
+                          const Allocator *allocator) {
   void *ptr = NULL;
   size_t size = item_size * capacity + sizeof(_InternalArrayHeader);
-  _InternalArrayHeader *h = allocator->alloc(size);
+  _InternalArrayHeader *h = allocator->alloc(allocator, size);
 
   if (h) {
     h->capacity = capacity;
@@ -19,21 +20,26 @@ void *_internal_array_new(size_t capacity, size_t item_size,
   return ptr;
 }
 
+size_t _internal_array_init(void *el, void *arr) {
+  *((void **) el) = arr;
+  return 0;
+}
+
+void _internal_array_advance(size_t *i, void *el, void *arr) {
+  (*i)++;
+  _InternalArrayHeader *h = ((_InternalArrayHeader *)arr) - 1;
+  u8 *bytes = (u8 *)arr;
+  *((void **) el) = bytes + *i * h->item_size;
+}
+
 static void *_internal_array_double_size(void *arr, size_t item_size) {
   _InternalArrayHeader *h = ((_InternalArrayHeader *)arr) - 1;
   size_t arr_len = h->len;
   size_t arr_new_capacity = h->capacity * 2;
-  Allocator *arr_allocator = h->allocator;
+  const Allocator *arr_allocator = h->allocator;
 
   size_t size = item_size * arr_new_capacity + sizeof(_InternalArrayHeader);
-  void *temp = arr_allocator->alloc(size);
-  if (!temp) {
-    perror("alloc");
-    exit(1);
-  }
-
-  memcpy(temp, h, sizeof(_InternalArrayHeader) + arr_len * item_size);
-  arr_allocator->dealloc(h);
+  void *temp = allocator_realloc(arr_allocator, h, sizeof(_InternalArrayHeader) + arr_len * item_size, size);
 
   _InternalArrayHeader *new_h = (_InternalArrayHeader *)temp;
   new_h->capacity = arr_new_capacity;
@@ -108,5 +114,5 @@ size_t array_len(const void *arr) {
 
 void _internal_array_free(void *arr) {
   _InternalArrayHeader *h = ((_InternalArrayHeader *)arr) - 1;
-  h->allocator->dealloc(h);
+  h->allocator->dealloc(h->allocator, h);
 }

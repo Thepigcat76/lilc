@@ -3,16 +3,11 @@
 #include "alloc.h"
 #include <string.h>
 
-#define array_foreach(arr, type, elem, ...)                                    \
-  do {                                                                         \
-    size_t len = array_len(arr);                                               \
-    type elem;                                                                 \
-    for (size_t _arr_foreach_index = 0; _arr_foreach_index < len;              \
-         _arr_foreach_index++) {                                               \
-      elem = arr[_arr_foreach_index];                                          \
-      __VA_ARGS__                                                              \
-    }                                                                          \
-  } while (0)
+#define array_foreach(arr, el)                                                 \
+  extern size_t _internal_array_init(void *el, void *_arr);                   \
+  extern void _internal_array_advance(size_t *i, void *el, void *_arr);       \
+  for (size_t _arr_foreach_idx = _internal_array_init(&el, arr);               \
+       _arr_foreach_idx < array_len(arr); _internal_array_advance(&_arr_foreach_idx, &el, arr))
 
 #define array_new(type, allocator)                                             \
   (type *)_internal_array_new(16, sizeof(type), allocator)
@@ -23,14 +18,14 @@
 #define array_free(arr) _internal_array_free(arr)
 
 typedef struct {
-  Allocator *allocator;
+  const Allocator *allocator;
   size_t capacity;
   size_t len;
   size_t item_size;
 } _InternalArrayHeader;
 
 void *_internal_array_new(size_t capacity, size_t item_size,
-                          Allocator *allocator);
+                          const Allocator *allocator);
 
 void _internal_array_set_len(void *arr, size_t len);
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include "alloc.h"
 
 typedef struct {
   char *string;
@@ -8,9 +9,10 @@ typedef struct {
   // Length of the string with the null terminator
   size_t term_len;
   size_t capacity;
+  const Allocator *allocator;
 } dyn_string_t;
 
-void dyn_string_init(dyn_string_t *str);
+void dyn_string_init(dyn_string_t *str, const Allocator *allocator);
 
 void dyn_string_add_char(dyn_string_t *str, char c);
 
