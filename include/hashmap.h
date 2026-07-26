@@ -11,7 +11,7 @@ typedef bool (*EqFunc)(const void *a, const void *b);
 typedef int (*HashFunc)(const void *a);
 
 struct _internal_hashmap_header {
-  const Allocator *allocator;
+  Allocator *allocator;
   size_t capacity;
   size_t key_type_size;
   size_t value_type_size;

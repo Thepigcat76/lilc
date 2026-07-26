@@ -1,7 +1,9 @@
-#include "../include/hashmap.h"
-#include "../include/hash.h"
-#include "../include/str.h"
+#include "../include/deque.h"
 #include "../include/eq.h"
+#include "../include/panic.h"
+#include "../include/hash.h"
+#include "../include/hashmap0.h"
+#include "../include/str.h"
 #include <stdio.h>
 
 typedef struct {
@@ -15,7 +17,7 @@ int32_t module_path_ptrv_hash(const void *array) {
   if (path != NULL) {
     size_t len = array_len(path->path);
     for (size_t i = 0; i < len; i++) {
-      char * ident = path->path[i];
+      char *ident = path->path[i];
       hash = 31 * hash + (ident == NULL ? 0 : strv_hash(ident));
     }
   }
@@ -36,7 +38,8 @@ bool module_path_ptrv_eq(const void *array0, const void *array1) {
     return false;
 
   for (size_t i = 0; i < len0; i++) {
-    if (!strv_eq(path0->path[i], path1->path[i])) return false;
+    if (!strv_eq(path0->path[i], path1->path[i]))
+      return false;
   }
 
   return true;
@@ -44,7 +47,88 @@ bool module_path_ptrv_eq(const void *array0, const void *array1) {
 
 #define BYTEBUF_SIZE 1024
 
-int _main(void) {
+static void free_and_null(void **mem) {
+  free(*mem);
+  *mem = NULL;
+}
+
+#define scoped_action(d)                                                       \
+  for (d = malloc(200); d != NULL; free_and_null((void **)&d))
+
+typedef struct {
+  char *name;
+  u8 age;
+} Person;
+
+int main(void) {
+  Hashmap map;
+  hashmap_init(&map, &HEAP_ALLOCATOR, char *, int, str_ptrv_hash, str_ptrv_eq, NULL);
+
+  char *name0 = "Max";
+  int age0 = 67;
+  hashmap_insert(&map, &name0, &age0);
+
+  char *name1 = "Chris";
+  int age1 = 30;
+  hashmap_insert(&map, &name1, &age1);
+
+  char **key;
+  int *val;
+  hashmap_foreach(&map, key, val) {
+    printf("Name: %s, Age: %d\n", *key, *val);
+  }
+
+  const i32 *ints = array_new(i32, &HEAP_ALLOCATOR);
+
+  i32 *i;
+  array_foreach(ints, i) {
+
+  }
+
+  char **strings;
+  deque_init(strings, &HEAP_ALLOCATOR);
+
+  deque_push_front(strings, "Hello0");
+
+  printf("Back: %s, Front: %s", (char *) deque_back(strings), (char *) deque_front(strings));
+
+  /*
+  Person *persons;
+  deque_init(persons, &HEAP_ALLOCATOR);
+
+  deque_push_back(persons, (Person){.age = 60, .name = "pete"});
+  deque_push_back(persons, (Person){.age = 60, .name = "assr"});
+  deque_push_back(persons, (Person){.age = 60, .name = "rere"});
+  deque_push_back(persons, (Person){.age = 60, .name = "goop"});
+  deque_push_back(persons, (Person){.age = 60, .name = "pete0"});
+  deque_push_back(persons, (Person){.age = 60, .name = "pete1"});
+  deque_push_back(persons, (Person){.age = 60, .name = "pete2"});
+  printf("persons: %p\n", persons);
+
+  for (size_t i = 0; i < deque_len(persons); i++) {
+    Person *p = deque_at(persons, i);
+    printf("elem %zu = %s\n", i, p->name);
+  }
+
+  printf("first elem = %s\n", deque_pop_front(persons)->name);
+  printf("back elem = %s\n", deque_pop_back(persons)->name);
+
+  deque_push_front(persons, (Person){.age = 60, .name = "goop-new"});
+
+  printf("popped last\n");
+
+  for (size_t i = 0; i < deque_len(persons); i++) {
+    Person *p = deque_at(persons, i);
+    printf("elem %zu = %s\n", i, p->name);
+  }
+
+  */
+
+  //deque_push_back(persons, (Person){.name = "Balls"});
+
+  //Person *first_person = deque_pop_front(persons);
+
+  /*
   Bump bump = {0};
   bump_init(&bump, BYTEBUF_SIZE);
 
@@ -84,45 +168,45 @@ int _main(void) {
   printf("String: %s\n", ds.string);
 
   bump_free(&bump);
-
-/*
-  Bump bump = {0};
-  bump_init(&bump, 8);
-
-  size_t i = 112;
-  void *mem0 = bump_alloc(&bump, sizeof(size_t));
-  memcpy(mem0, &i, sizeof(size_t));
-
-  printf("Integer: %zu\n", i);
-  printf("Allocated integer: %zu\n", *(size_t *) mem0);
-
-  size_t j = 211;
-  void *mem1 = bump_alloc(&bump, sizeof(size_t));
-  memcpy(mem1, &j, sizeof(size_t));
-
-  printf("Integer: %zu\n", j);
-  printf("Allocated integer: %zu\n", *(size_t *) mem1);
-
-  struct big_struct {
-    size_t a;
-    size_t b;
-  };
-
-  struct big_struct k = {.a = 100, .b = 200};
-  struct big_struct *mem2 = bump_alloc(&bump, sizeof(struct big_struct));
-  memcpy(mem2, &k, sizeof(struct big_struct));
-
-  printf("Integer: %zu, %zu\n", k.a, k.b);
-  printf("Allocated integer: %zu, %zu\n", mem2->a, mem2->b);
-
-  printf("");
   */
 
   /*
-  Hashmap(Path, int) map = hashmap_new(Path, int, &HEAP_ALLOCATOR, module_path_ptrv_hash, module_path_ptrv_eq, NULL);
-  char *jeff_k = "Jeff";
-  char *jeff_d = "Ballz";
-  Path path = {.path = array_new(char *, &HEAP_ALLOCATOR)};
+    Bump bump = {0};
+    bump_init(&bump, 8);
+
+    size_t i = 112;
+    void *mem0 = bump_alloc(&bump, sizeof(size_t));
+    memcpy(mem0, &i, sizeof(size_t));
+
+    printf("Integer: %zu\n", i);
+    printf("Allocated integer: %zu\n", *(size_t *) mem0);
+
+    size_t j = 211;
+    void *mem1 = bump_alloc(&bump, sizeof(size_t));
+    memcpy(mem1, &j, sizeof(size_t));
+
+    printf("Integer: %zu\n", j);
+    printf("Allocated integer: %zu\n", *(size_t *) mem1);
+
+    struct big_struct {
+      size_t a;
+      size_t b;
+    };
+
+    struct big_struct k = {.a = 100, .b = 200};
+    struct big_struct *mem2 = bump_alloc(&bump, sizeof(struct big_struct));
+    memcpy(mem2, &k, sizeof(struct big_struct));
+
+    printf("Integer: %zu, %zu\n", k.a, k.b);
+    printf("Allocated integer: %zu, %zu\n", mem2->a, mem2->b);
+
+    printf("");
+    */
+
+  /*
+  Hashmap(Path, int) map = hashmap_new(Path, int, &HEAP_ALLOCATOR,
+  module_path_ptrv_hash, module_path_ptrv_eq, NULL); char *jeff_k = "Jeff"; char
+  *jeff_d = "Ballz"; Path path = {.path = array_new(char *, &HEAP_ALLOCATOR)};
   array_add(path.path, jeff_k);
   array_add(path.path, jeff_d);
   int jeff = 100;
@@ -158,6 +242,4 @@ int _main(void) {
   int *t = hashmap_value(&map, &path4);
   printf("T: %d\n", *t);
 */
-
-
 }

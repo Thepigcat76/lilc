@@ -12,7 +12,12 @@
 
 static Cmd cmd = {0};
 
+static bool build_lib = false;
+
 static void visit_lib_entry(struct file_entry entry) {
+  if (strcmp(entry.file_ext, "c") != 0 || strcmp(entry.name, "test.c") == 0 || entry.name[0] == '_')
+    return;
+
   Cmd lib_compile_cmd = {0};
 
   cmd_appendf(&lib_compile_cmd, COMPILER);
@@ -35,11 +40,13 @@ static void visit_lib_entry(struct file_entry entry) {
 }
 
 static void visit_entry(struct file_entry entry) {
+  if (strcmp(entry.file_ext, "c") != 0 || entry.name[0] == '_')
+    return;
   cmd_appendf(&cmd, "%s", entry.path);
 }
 
 int main(int argc, char **argv) {
-  bool build_lib = argc == 2 && strcmp(argv[1], "p") == 0;
+  build_lib = argc == 2 && strcmp(argv[1], "p") == 0;
 
   if (build_lib) {
     cmd_appendf(&cmd, "ar rcs " LIB_OUT_NAME);

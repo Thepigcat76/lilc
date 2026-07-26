@@ -24,13 +24,13 @@ static void stack_trace_print(void) {
   free(symbols);
 }
 
-void *panic(const char *fmt, ...) {
-  puts(ANSI_RED "Program panicked" ANSI_RESET);
+void *_internal_panic(i32 line, const char *file, const char *fmt, ...) {
+  printf(ANSI_RED "Program panicked" ANSI_RESET " at %s:%d with ", file, line);
   va_list args;
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end(args);
-  puts("\nCrashed at:");
+  puts("");
   stack_trace_print();
   exit(1);
 }

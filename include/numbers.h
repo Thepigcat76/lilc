@@ -15,6 +15,6 @@ typedef double f64;
 
 #define align_up(x, a) (x + (a - 1)) & ~(a - 1)
 
-#define min(a, b) (a) > (b) ? (b) : (a)
+#define min(a, b) ((a) > (b) ? (b) : (a))
 
-#define max(a, b) (a) > (b) ? (a) : (b)
+#define max(a, b) ((a) > (b) ? (a) : (b))

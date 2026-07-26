@@ -24,16 +24,15 @@ static void stack_trace_print(void) {
   free(symbols);
 }
 
-void *_internal_todo(const char *fmt, ...) {
-  printf(ANSI_RED "TODO - Not Yet Implemented" ANSI_RESET);
+void *_internal_todo(i32 line, const char *file, const char *fmt, ...) {
   if (fmt != NULL) {
-    printf("\n");
     va_list args;
     va_start(args, fmt);
     vprintf(fmt, args);
+    printf("\n");
     va_end(args);
   }
-  puts("\nCrashed at:");
+  printf(ANSI_RED "TODO" ANSI_RESET " at %s:%d with ", file, line);
   stack_trace_print();
   exit(1);
 }
