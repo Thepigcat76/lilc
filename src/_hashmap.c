@@ -53,7 +53,7 @@ bool hashmap_insert(struct _internal_hashmap *hashmap, void *key, void *val) {
   // size_t len = hashmap->len;
   // size_t prev_capacity = hashmap->header.capacity;
   // size_t new_capacity = prev_capacity * 2;
-  // Allocator *allocator = hashmap->header.allocator;
+  // allocator_t *allocator = hashmap->header.allocator;
   // size_t new_key_size = hashmap->header.key_type_size * new_capacity;
   // size_t new_value_size = hashmap->header.value_type_size * new_capacity;
   // if (len >= prev_capacity) {

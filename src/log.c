@@ -1,5 +1,5 @@
 #include "../include/log.h"
-#include "lilc/ansi.h"
+#include "../include/ansi.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>

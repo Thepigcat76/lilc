@@ -9,14 +9,21 @@ typedef struct {
   // Length of the string with the null terminator
   size_t term_len;
   size_t capacity;
-  Allocator *allocator;
+  allocator_t *allocator;
 } dyn_string_t;
 
-void dyn_string_init(dyn_string_t *str, Allocator *allocator);
+void dyn_string_init(dyn_string_t *str, allocator_t *allocator);
 
 void dyn_string_add_char(dyn_string_t *str, char c);
 
 void dyn_string_add_str(dyn_string_t *str, const char *c);
+
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((format(printf, 2, 3)))
+#endif
+void dyn_string_add_strf(dyn_string_t *str, const char *fmt, ...);
+
+void dyn_string_remove_last_char(dyn_string_t *str);
 
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((format(printf, 2, 3)))
@@ -41,4 +48,4 @@ void dyn_string_free(dyn_string_t *str);
 __attribute__((format(printf, 2, 3)))
 #endif
 // Helper function to quickly create a dynstr
-dyn_string_t dyn_string_makef(Allocator *alloc, const char *fmt, ...);
+dyn_string_t dyn_string_makef(allocator_t *alloc, const char *fmt, ...);

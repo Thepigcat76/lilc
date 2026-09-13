@@ -10,11 +10,11 @@ struct deque_header {
   size_t len;
   size_t capacity;
   size_t item_size;
-  Allocator *allocator;
+  allocator_t *allocator;
 };
 
 void _internal_deque_init(void **deque_ptr, size_t item_size, size_t capacity,
-                          Allocator *allocator) {
+                          allocator_t *allocator) {
   struct deque_header *deque = allocator->alloc(
       allocator, item_size * capacity + sizeof(struct deque_header));
 

@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 dyn_string_t *str_split(const char *string, char delimiter,
-                        Allocator *allocator) {
+                        allocator_t *allocator) {
   dyn_string_t *strs = array_new(dyn_string_t, allocator);
 
   size_t len = strlen(string);
@@ -14,6 +14,8 @@ dyn_string_t *str_split(const char *string, char delimiter,
   for (size_t i = 0; i < len; i++) {
     if (string[i] == delimiter && cur_str.len > 0) {
       dyn_string_t new_str = {0};
+      dyn_string_init(&new_str, allocator);
+
       dyn_string_copy(&new_str, &cur_str);
 
       array_add(strs, new_str);
@@ -40,9 +42,13 @@ char *str_fmt_temp(const char *fmt, ...) {
   return temp_fmt_buffer;
 }
 
-char *str_dup(const char *src, Allocator *alloc) {
+char *str_dup(const char *src, allocator_t *alloc) {
   size_t str_len = strlen(src);
-  char *dest_buf = alloc->alloc(alloc, str_len);
-  strncpy(dest_buf, src, str_len);
+  char *dest_buf = alloc->alloc(alloc, str_len + 1);
+  strncpy(dest_buf, src, str_len + 1);
   return dest_buf;
+}
+
+bool str_eq(const char *str_a, const char *str_b) {
+  return strcmp(str_a, str_b) == 0;
 }

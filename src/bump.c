@@ -23,7 +23,7 @@ static struct bump_node *bump_alloc_node(size_t node_capacity) {
 
 static void bump_dealloc_node(struct bump_node *bump_node) { free(bump_node); }
 
-void bump_init(Bump *bump, size_t bump_node_capacity) {
+void bump_init(bump_t *bump, size_t bump_node_capacity) {
   size_t aligned_capacity = align_up(bump_node_capacity, 8);
   bump->node_capacity = aligned_capacity;
   bump->alloc_node = bump_alloc_node;
@@ -32,7 +32,7 @@ void bump_init(Bump *bump, size_t bump_node_capacity) {
   bump->cur_node = bump->first_node;
 }
 
-void *bump_alloc(Bump *bump, size_t bytes) {
+void *bump_alloc(bump_t *bump, size_t bytes) {
   if (bump->cur_node == NULL || bytes == 0)
     return NULL;
 
@@ -75,7 +75,7 @@ void *bump_alloc(Bump *bump, size_t bytes) {
   return ptr;
 }
 
-void bump_reset(Bump *bump) {
+void bump_reset(bump_t *bump) {
   struct bump_node *cur_node = bump->first_node;
   while (cur_node != NULL) {
     cur_node->offset = 0;
@@ -85,7 +85,7 @@ void bump_reset(Bump *bump) {
   bump->cur_node = bump->first_node;
 }
 
-void bump_free(Bump *bump) {
+void bump_free(bump_t *bump) {
   struct bump_node *cur_node = bump->first_node;
   while (cur_node != NULL) {
     struct bump_node *cur_node_copy = cur_node;

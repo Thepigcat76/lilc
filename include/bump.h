@@ -10,12 +10,14 @@ typedef struct {
   struct bump_node *cur_node;
   struct bump_node *(*alloc_node)(size_t node_capacity);
   void (*dealloc_node)(struct bump_node *node);
-} Bump;
+} bump_t;
 
-void bump_init(Bump *bump, size_t bump_node_capacity);
+#define Bump bump_t // Backwards compatability
 
-void *bump_alloc(Bump *bump, size_t bytes);
+void bump_init(bump_t *bump, size_t bump_node_capacity);
 
-void bump_free(Bump *bump);
+void *bump_alloc(bump_t *bump, size_t bytes);
 
-void bump_reset(Bump *bump);
+void bump_free(bump_t *bump);
+
+void bump_reset(bump_t *bump);

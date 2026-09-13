@@ -5,12 +5,14 @@
 
 #define DEQUE_DEFAULT_CAPACITY 32
 
+#define deque_t(ty) ty *
+
 #define deque_init(_deque, _allocator)                                         \
   deque_init_cap(_deque, DEQUE_DEFAULT_CAPACITY, _allocator)
 
 #define deque_init_cap(_deque, _capacity, _allocator)                          \
   do {                                                                         \
-    extern void _internal_deque_init(void **, size_t, size_t, Allocator *);    \
+    extern void _internal_deque_init(void **, size_t, size_t, allocator_t *);    \
     _internal_deque_init((void **)&_deque, sizeof(typeof(*_deque)), _capacity, \
                          _allocator);                                          \
   } while (0)

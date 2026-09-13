@@ -1,20 +1,19 @@
-#include "../include/hashmap0.h"
+#include "../include/hashmap.h"
 #include "../include/alloc.h"
 #include "../include/array.h"
-#include "lilc/log.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 struct _internal_hashmap_header {
-  Allocator *allocator;
+  allocator_t *allocator;
   size_t capacity;
   size_t key_type_size;
   size_t value_type_size;
-  HashFunc key_hash_func;
-  EqFunc key_eq_func;
-  EqFunc val_eq_func;
+  hash_func_t key_hash_func;
+  eq_func_t key_eq_func;
+  eq_func_t val_eq_func;
 };
 
 struct _internal_hashmap_node {
@@ -29,21 +28,21 @@ struct _internal_hashmap_node {
 struct _internal_hashmap {
   /* Additional information about the map */
   struct _internal_hashmap_header header;
-  /* A list of all keys in the map*/
+  /* A list of all keys in the map */
   void *keys;
   /* A list of nodes with all values and their keys for the corresponding hash
    */
   struct _internal_hashmap_node *values;
 };
 
-static void *
+static inline void *
 _internal_hashmap_key_at_index(const struct _internal_hashmap *hashmap,
                                size_t index) {
   return ((void *)((uint8_t *)hashmap->keys) +
           index * hashmap->header.key_type_size);
 }
 
-static void
+static inline void
 _internal_hashmap_node_init(struct _internal_hashmap_node *node,
                             const struct _internal_hashmap_header *h) {
   node->initialized = true;
@@ -51,10 +50,10 @@ _internal_hashmap_node_init(struct _internal_hashmap_node *node,
   node->values = _internal_array_new(16, h->value_type_size, h->allocator);
 }
 
-void _internal_hashmap_init(Hashmap *hashmap, Allocator *alloc,
+void _internal_hashmap_init(Hashmap *hashmap, allocator_t *alloc,
                             size_t initial_cap, size_t key_type_size,
-                            size_t val_type_size, HashFunc key_hash_func,
-                            EqFunc key_eq_func, EqFunc val_eq_func) {
+                            size_t val_type_size, hash_func_t key_hash_func,
+                            eq_func_t key_eq_func, eq_func_t val_eq_func) {
   struct _internal_hashmap_header header = {
       .allocator = alloc,
       .capacity = initial_cap,
@@ -112,23 +111,20 @@ bool hashmap_insert(Hashmap *hashmap, void *key, void *val) {
   // Check if key is present
   size_t key_index = _internal_hashmap_node_contains_key(
       node, key, &hashmap->_internal_map->header);
+  // Key is present
   if (key_index != -1) {
-    // Key is present
     // Add the value
     memcpy(((uint8_t *)node->values) +
                key_index * hashmap->_internal_map->header.value_type_size,
            val, hashmap->_internal_map->header.value_type_size);
     return true;
-  } else {
-    // Key is not present
-    struct _internal_hashmap_node *node =
-        &hashmap->_internal_map->values[index];
-    _internal_array_add(&node->keys, key);
-    _internal_array_add(&node->values, val);
-    _internal_array_add(&hashmap->_internal_map->keys, key);
-    hashmap->len++;
-    return false;
   }
+  // Key is not present
+  _internal_array_add(&node->keys, key);
+  _internal_array_add(&node->values, val);
+  _internal_array_add(&hashmap->_internal_map->keys, key);
+  hashmap->len++;
+  return false;
 }
 
 bool hashmap_contains(Hashmap *hashmap, const void *key) {
@@ -163,27 +159,21 @@ void *hashmap_value(Hashmap *hashmap, const void *key) {
 }
 
 void hashmap_clear(Hashmap *hashmap) {
-
   hashmap->len = 0;
   array_clear(hashmap->_internal_map->keys);
 }
 
 void hashmap_deinit(Hashmap *hashmap) {
-  size_t hashmap_keys_len = array_len(hashmap->_internal_map->keys);
-  for (size_t i = 0; i < hashmap_keys_len; i++) {
-    void *key = ((uint8_t *)hashmap->_internal_map->keys) +
-                i * hashmap->_internal_map->header.key_type_size;
-    int hash = hashmap->_internal_map->header.key_hash_func(key);
-    size_t hashed_index = hash % hashmap->_internal_map->header.capacity;
+  for (size_t i = 0; i < hashmap->_internal_map->header.capacity; i++) {
     struct _internal_hashmap_node *value_node =
-        &hashmap->_internal_map->values[hashed_index];
+        &hashmap->_internal_map->values[i];
 
     if (value_node->initialized) {
       array_free(value_node->values);
       array_free(value_node->keys);
     }
   }
-  Allocator *alloc = hashmap->_internal_map->header.allocator;
+  allocator_t *alloc = hashmap->_internal_map->header.allocator;
   alloc->dealloc(alloc, hashmap->_internal_map->values);
   array_free(hashmap->_internal_map->keys);
   alloc->dealloc(alloc, hashmap->_internal_map);

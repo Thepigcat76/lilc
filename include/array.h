@@ -3,6 +3,8 @@
 #include "alloc.h"
 #include <string.h>
 
+#define array_t(ty) ty *
+
 #define array_foreach(arr, el)                                                 \
   extern size_t _internal_array_init(void *, const void *);                    \
   extern void _internal_array_advance(size_t *, void *, const void *);        \
@@ -23,14 +25,14 @@
   } while (0)
 
 typedef struct {
-  Allocator *allocator;
+  allocator_t *allocator;
   size_t capacity;
   size_t len;
   size_t item_size;
 } _InternalArrayHeader;
 
 void *_internal_array_new(size_t capacity, size_t item_size,
-                          Allocator *allocator);
+                          allocator_t *allocator);
 
 void _internal_array_set_len(void *arr, size_t len);
 
@@ -61,7 +63,7 @@ void _internal_array_clear(void *arr_ptr);
 
 #define array_add(arr, ...)                                      \
   do {                                                            \
-    __auto_type _tmp_item = (__VA_ARGS__);                               \
+    __typeof__(*(arr)) _tmp_item = (__VA_ARGS__);                               \
     _internal_array_add((void**)&(arr), (void*)&_tmp_item);       \
   } while (0)
 

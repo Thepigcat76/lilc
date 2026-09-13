@@ -5,9 +5,9 @@
 #include "numbers.h"
 #include <stdbool.h>
 
-dyn_string_t file_read_to_string(const char *filepath, Allocator *allocator);
+dyn_string_t file_read_to_string(const char *filepath, allocator_t *allocator);
 
-u8 *file_read_to_bytes(const char *filepath, size_t *length, Allocator *allocator);
+array_t(u8) file_read_to_bytes(const char *filepath, size_t *length, allocator_t *allocator);
 
 bool file_exists(const char *filepath);
 
@@ -21,4 +21,4 @@ i32 file_move(const char *filepath, const char *dest_filepath);
 
 const char *file_extension(const char *filepath);
 
-dyn_string_t file_name(const char *filepath, Allocator *allocator);
+dyn_string_t file_name(const char *filepath, allocator_t *allocator);

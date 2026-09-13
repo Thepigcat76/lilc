@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 void *_internal_array_new(size_t capacity, size_t item_size,
-                          Allocator *allocator) {
+                          allocator_t *allocator) {
   void *ptr = NULL;
   size_t size = item_size * capacity + sizeof(_InternalArrayHeader);
   _InternalArrayHeader *h = allocator->alloc(allocator, size);
@@ -42,7 +42,7 @@ static bool _internal_array_set_capacity(void **arr_ptr, size_t new_capacity) {
   size_t arr_len = h->len;
   size_t arr_cap = h->capacity;
   size_t arr_item_size = h->item_size;
-  Allocator *arr_allocator = h->allocator;
+  allocator_t *arr_allocator = h->allocator;
 
   size_t size = arr_item_size * new_capacity + sizeof(_InternalArrayHeader);
   _InternalArrayHeader *new_h = arr_allocator->realloc(

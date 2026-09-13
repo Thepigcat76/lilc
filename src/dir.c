@@ -1,4 +1,6 @@
 #include "../include/dir.h"
+#include "../include/str.h"
+#include "../include/array.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -57,4 +59,26 @@ i32 dirs_create(const char *path) {
   if (dir_create(tmp) != 0 && errno != EEXIST)
     return -1;
   return 0;
+}
+
+char **dir_entries_list(const char *path, allocator_t *alloc) {
+  DIR *dir = opendir(path);
+  if (dir == NULL) {
+    return NULL;
+  }
+
+  struct dirent *dir_entry = NULL;
+
+  char **dir_entries = array_new(char *, alloc);
+
+  while ((dir_entry = readdir(dir)) != NULL) {
+    if (str_eq(dir_entry->d_name, ".") || str_eq(dir_entry->d_name, "..")) {
+      continue;
+    }
+
+    array_add(dir_entries, dir_entry->d_name);
+    
+  }
+
+  return dir_entries;
 }

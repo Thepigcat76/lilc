@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-dyn_string_t file_read_to_string(const char *filename, Allocator *allocator) {
+dyn_string_t file_read_to_string(const char *filename, allocator_t *allocator) {
   dyn_string_t str = {0};
 
   FILE *file = fopen(filename, "rb");
@@ -56,7 +56,7 @@ dyn_string_t file_read_to_string(const char *filename, Allocator *allocator) {
 }
 
 u8 *file_read_to_bytes(const char *filename, size_t *length,
-                       Allocator *allocator) {
+                       allocator_t *allocator) {
   FILE *file = fopen(filename, "rb");
   if (file == NULL) {
     fprintf(stderr, "Error opening file %s - ", filename);
@@ -179,7 +179,7 @@ const char *file_extension(const char *filepath) {
   return dot + 1;
 }
 
-dyn_string_t file_name(const char *filepath, Allocator *allocator) {
+dyn_string_t file_name(const char *filepath, allocator_t *allocator) {
   if (!filepath)
     return (dyn_string_t){0};
 
