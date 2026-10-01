@@ -5,6 +5,8 @@
 
 #define array_t(ty) ty *
 
+// TODO: New foreach loop from deque
+
 #define array_foreach(arr, el)                                                 \
   extern size_t _internal_array_init(void *, const void *);                    \
   extern void _internal_array_advance(size_t *, void *, const void *);        \

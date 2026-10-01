@@ -3,15 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-struct deque_header {
-  size_t head_index;
-  size_t tail_index;
-
-  size_t len;
-  size_t capacity;
-  size_t item_size;
-  allocator_t *allocator;
-};
+static void deque_foreach_expanded(void *deque, void **elem) {
+}
 
 void _internal_deque_init(void **deque_ptr, size_t item_size, size_t capacity,
                           allocator_t *allocator) {
@@ -49,11 +42,12 @@ static void _internal_deque_resize(void **deque_ptr, size_t new_capacity) {
       (old_header.capacity - old_header.head_index) % old_header.capacity;
   size_t back_elems_amount = old_header.tail_index;
 
-  //printf(
-  //    "[Resizing] Front elems amount: %zu, front index: %zu, capacity: %zu\n",
-  //    front_elems_amount, header->head_index, header->capacity);
-  //printf("[Resizing] Back elems amount: %zu, back index: %zu, capacity: %zu\n",
-  //       back_elems_amount, header->tail_index, header->capacity);
+  // printf(
+  //     "[Resizing] Front elems amount: %zu, front index: %zu, capacity:
+  //     %zu\n", front_elems_amount, header->head_index, header->capacity);
+  // printf("[Resizing] Back elems amount: %zu, back index: %zu, capacity:
+  // %zu\n",
+  //        back_elems_amount, header->tail_index, header->capacity);
 
   // Copy front elements
   memcpy(new_deque + (new_header->capacity - front_elems_amount) *
@@ -123,7 +117,7 @@ void *deque_front(void *deque) {
   if (h->len == 0) {
     return NULL;
   }
-  
+
   return ((u8 *)deque) + h->head_index * h->item_size;
 }
 

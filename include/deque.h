@@ -3,6 +3,16 @@
 #include "alloc.h"
 #include <stddef.h>
 
+struct deque_header {
+  size_t head_index;
+  size_t tail_index;
+
+  size_t len;
+  size_t capacity;
+  size_t item_size;
+  allocator_t *allocator;
+};
+
 #define DEQUE_DEFAULT_CAPACITY 32
 
 #define deque_t(ty) ty *
@@ -20,16 +30,22 @@
 #define deque_push_front(_deque, ...)                                        \
   do {                                                                         \
     extern void _internal_deque_push_front(void **, void *);                   \
-    typeof(__VA_ARGS__) item = __VA_ARGS__;                                                \
+    typeof(*_deque) item = __VA_ARGS__;                                                \
     _internal_deque_push_front((void **) &_deque, &item);                                \
   } while (0)
 
 #define deque_push_back(_deque, ...)                                         \
   do {                                                                         \
     extern void _internal_deque_push_back(void **, void *);                    \
-    typeof(__VA_ARGS__) item = __VA_ARGS__;                                                \
+    typeof(*_deque) item = __VA_ARGS__;                                                \
     _internal_deque_push_back((void **) &_deque, &item);                                 \
   } while (0)
+
+#define deque_foreach(deque, var) for (unsigned long *\
+           _internal_deque_header = (unsigned long *)(((struct deque_header *)(deque)) - 1),\
+          _internal_deque_idx = ((var) = deque_front(deque), 0);\
+       _internal_deque_idx < ((struct deque_header *)_internal_deque_header)->len;\
+       (++_internal_deque_idx, (var) = deque_at(deque, _internal_deque_idx)))
 
 #define deque_pop_front(_deque) ((typeof(_deque)) _internal_deque_pop_front(_deque))
 

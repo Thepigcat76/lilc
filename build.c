@@ -91,7 +91,9 @@ int main(int argc, char **argv) {
     cmd_execute(&cmd);
 
     if (arg_eq(argc, argv, 1, "r") || arg_eq(argc, argv, 1, "run")) {
-      systemf("./%s", OUT_NAME);
+      systemf("./" OUT_NAME);
+    } else if (arg_eq(argc, argv, 1, "d")) {
+      systemf("gdb ./" OUT_NAME);
     }
   } else {
     // Make sure out path exists
