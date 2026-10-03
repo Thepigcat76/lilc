@@ -1,21 +1,18 @@
 #include "../include/deque.h"
 #include "../include/dynstr.h"
 #include "../include/log.h"
-#include "../include/str.h"
+#include "../include/path.h"
+#include "../include/alloc.h"
 
 int main(void) {
-  i64 *deque;
-  deque_init(deque, &HEAP_ALLOCATOR);
+  dyn_string_t path = {0};
+  dyn_string_init(&path, &HEAP_ALLOCATOR);
+  
+  file_path_parse(&path, "/home/thepigcat////Desktop//");
 
-  deque_push_back(deque, 10);
-  deque_push_back(deque, 230);
-  deque_push_front(deque, 40);
-  deque_push_back(deque, 230);
+  file_path_extend_back(&path, "///.///");
 
-  log_debug("Front: %ld", *(i64 *)deque_front(deque));
+  char *file_path_str = path.string;
 
-  i64 *elem1;
-  deque_foreach(deque, elem1) {
-    log_debug("Index: %zu, elem: %ld", _internal_deque_idx, *elem1);
-  }
+  log_debug("File path: %s", file_path_str);
 }

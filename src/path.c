@@ -2,76 +2,68 @@
 #include "../include/numbers.h"
 #include "../include/str.h"
 #include <limits.h>
+#include <stdarg.h>
+#include <stdio.h>
 
-void file_path_init(file_path_t *filepath, allocator_t *alloc) {
-  filepath->alloc = alloc;
-  deque_init(filepath->parts, alloc);
-  dyn_string_init(&filepath->literal_path, alloc);
-}
+static void _internal_file_path_parse(dyn_string_t *str, const char *path) {
+  usz len = str_len(path);
 
-void file_path_deinit(file_path_t *filepath) {
-  dyn_string_t *back;
-  while ((back = deque_pop_back(filepath->parts)) != NULL) {
-    dyn_string_free(back);
+  bool slash = false;
+
+  if (str->len > 0) {
+    if (str->string[str->len - 1] == '/') {
+      slash = true;
+    }
   }
-  deque_deinit(filepath->parts);
-  dyn_string_free(&filepath->literal_path);
-}
-
-bool file_path_parse(file_path_t *filepath, const char *path_literal) {
-  usz len = str_len(path_literal);
-
-  if (len > PATH_MAX) {
-    return false;
-  }
-
-  dyn_string_copy_str(&filepath->literal_path, path_literal);
-
-  bool part_init = false;
-  dyn_string_t part = {0};
 
   for (usz ichar = 0; ichar < len; ichar++) {
-    while (path_literal[ichar] == '/') {
-      if (part_init) {
-        deque_push_back(filepath->parts, part);
-        part_init = false;
+    if (path[ichar] == '/') {
+      if (!slash) {
+        dyn_string_add_char(str, '/');
+        slash = true;
       }
       continue;
     }
 
-    if (!part_init) {
-      dyn_string_init(&part, filepath->alloc);
-    }
-
-    dyn_string_add_char(&part, path_literal[ichar]);
+    slash = false;
+    dyn_string_add_char(str, path[ichar]);
   }
-
-  return true;
 }
 
-#if defined(__GNUC__) || defined(__clang__)
-__attribute__((format(printf, 2, 3)))
-#endif
-void file_path_extend_back(file_path_t *filepath, const char *fmt, ...);
+static void _internal_file_path_parse_va(dyn_string_t *str, bool front, const char *fmt,
+                                         va_list args) {
+  char buf[PATH_MAX + 1];
 
-#if defined(__GNUC__) || defined(__clang__)
-__attribute__((format(printf, 2, 3)))
-#endif
-void file_path_extend_front(file_path_t *filepath, const char *fmt, ...);
+  vsnprintf(buf, PATH_MAX, fmt, args);
 
-void file_path_push_back(file_path_t *filepath, const char *part);
-
-void file_path_push_front(file_path_t *filepath, const char *part);
-
-void file_path_pop_back(file_path_t *filepath, const char *part);
-
-void file_path_pop_front(file_path_t *filepath, const char *part);
-
-dyn_string_t file_path_format(const file_path_t *filepath, allocator_t *alloc) {
-  
+  _internal_file_path_parse(str, buf);
 }
 
-#if defined(__GNUC__) || defined(__clang__)
-__attribute__((format(printf, 2, 3)))
-#endif
-file_path_t file_path_makef(allocator_t *alloc, const char *fmt, ...);
+void file_path_parse(dyn_string_t *str, const char *path) {
+  dyn_string_clear(str);
+
+  _internal_file_path_parse(str, path);
+}
+
+dyn_string_t file_path_makef(allocator_t *alloc, const char *fmt, ...) {
+  dyn_string_t str = {0};
+  dyn_string_init(&str, alloc);
+
+  va_list args;
+  va_start(args, fmt);
+  _internal_file_path_parse_va(&str, fmt, args);
+  va_end(args);
+
+  return str;
+}
+
+void file_path_extend_front(dyn_string_t *str, const char *fmt, ...) {
+
+}
+
+void file_path_extend_back(dyn_string_t *str, const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  _internal_file_path_parse_va(str, fmt, args);
+  va_end(args);
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "alloc.h"
+#include "numbers.h"
 #include <stddef.h>
 
 struct deque_header {
@@ -52,6 +53,8 @@ struct deque_header {
 #define deque_pop_back(_deque) ((typeof(_deque)) _internal_deque_pop_back(_deque))
 
 #define deque_at(_deque, index) ((typeof(_deque)) _internal_deque_at(_deque, index))
+
+void deque_reset(void *deque);
 
 void *deque_front(void *deque);
 
