@@ -7,10 +7,10 @@
 int main(void) {
   dyn_string_t path = {0};
   dyn_string_init(&path, &HEAP_ALLOCATOR);
-  
-  file_path_parse(&path, "/home/thepigcat////Desktop//");
 
-  file_path_extend_back(&path, "///.///");
+  dyn_string_copy_str(&path, "/u/../pol/ui///.././.././io//");
+  
+  file_path_resolve(&path);
 
   char *file_path_str = path.string;
 

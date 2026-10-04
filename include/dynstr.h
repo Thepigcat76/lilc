@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stddef.h>
 #include "alloc.h"
+#include "numbers.h"
 
 typedef struct {
   char *string;
@@ -33,6 +33,17 @@ void dyn_string_printf(dyn_string_t *str, const char *fmt, ...);
 void dyn_string_copy(dyn_string_t *dest, const dyn_string_t *src);
 
 void dyn_string_copy_str(dyn_string_t *dest, const char *src);
+
+// Resizes the capacity and allocated string to new_size.
+// Does not account for null terminator
+// Returns true if string had to be resized, false otherwise
+bool dyn_string_resize(dyn_string_t *str, usz new_size);
+
+// Ensures that the string has the expected size and if not
+// we try to double the capacity or set it to expected_size directly.
+// Does not account for null terminator
+// Returns true if string had to be resized, false otherwise
+bool dyn_string_ensure_size(dyn_string_t *str, usz expected_size);
 
 // Creates a temporary copy in a static string buffer and frees the original dyn string
 char *dyn_string_temp_copy_and_free(dyn_string_t str);
