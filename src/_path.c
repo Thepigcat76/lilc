@@ -3,7 +3,6 @@
 #include "../include/numbers.h"
 #include "../include/str.h"
 #include <limits.h>
-#include <linux/limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 

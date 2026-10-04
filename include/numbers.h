@@ -24,8 +24,12 @@ typedef __SSIZE_T_TYPE isz;
 
 #define align_up(x, a) (x + (a - 1)) & ~(a - 1)
 
+#ifndef _WIN32
 #define min(a, b) ((a) > (b) ? (b) : (a))
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
+#else
+#include <stdlib.h>
+#endif
 
 #define clamp(a, min, max) ((a) < (min) ? (min) : ((a) > (max) ? (max) : (a)))

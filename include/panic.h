@@ -2,7 +2,7 @@
 
 #include "numbers.h"
 
-#define panic(...) _internal_panic(__LINE__, __FILE__ __VA_OPT__(,) __VA_ARGS__)
+#define panic(...) _internal_panic(__LINE__, __FILE__ __VA_OPT__(,)  __VA_ARGS__ , NULL)
 
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((format(printf, 3, 4)))

@@ -11,12 +11,16 @@
 #define PROJECT_NAME "lilc"
 
 // Out name for test builds
+#ifdef _WIN32
+#define OUT_NAME ".\\build\\" PROJECT_NAME ".exe"
+#else
 #define OUT_NAME "./build/" PROJECT_NAME
+#endif
 // Out name for library builds
-#define LIB_OUT_NAME "./build/" PROJECT_NAME ".a"
+#define LIB_OUT_NAME "build/" PROJECT_NAME ".a"
 
 // The project directory containing header files
-#define INCLUDE_DIR "./include/"
+#define INCLUDE_DIR "include/"
 // The directory where header files should be moved to after installation
 #define INSTALL_INCLUDE_DIR "/usr/include/" PROJECT_NAME "/"
 
@@ -50,13 +54,13 @@ static void visit_lib_entry(struct file_entry entry) {
   // Output location
   cmd_appendf(&lib_compile_cmd, "-o");
 
-  cmd_appendf(&lib_compile_cmd, "./build/%s.o", entry.name);
+  cmd_appendf(&lib_compile_cmd, "build/%s.o", entry.name);
 
   cmd_appendf(&lib_compile_cmd, "%s", entry.path);
 
   cmd_execute(&lib_compile_cmd);
 
-  cmd_appendf(&cmd, "./build/%s.o", entry.name);
+  cmd_appendf(&cmd, "build/%s.o", entry.name);
 
   printf("Compiled %s\n", entry.path);
 }
@@ -64,6 +68,9 @@ static void visit_lib_entry(struct file_entry entry) {
 static void visit_entry(struct file_entry entry) {
   if (strcmp(entry.file_ext, "c") != 0 || entry.name[0] == '_')
     return;
+
+  printf("Added file: %s\n", entry.path);
+
   cmd_appendf(&cmd, "%s", entry.path);
 }
 
@@ -85,6 +92,11 @@ int main(int argc, char **argv) {
     // Flags
     cmd_appendf(&cmd, "-g");
     cmd_appendf(&cmd, "-std=%s", STANDARD);
+
+#ifdef _WIN32
+    cmd_appendf(&cmd, "-D_CRT_SECURE_NO_WARNINGS");
+#endif
+
     // Output location
     cmd_appendf(&cmd, "-o");
     cmd_appendf(&cmd, OUT_NAME);
@@ -96,7 +108,7 @@ int main(int argc, char **argv) {
     cmd_execute(&cmd);
 
     if (arg_eq(argc, argv, 1, "r") || arg_eq(argc, argv, 1, "run")) {
-      systemf("./" OUT_NAME);
+      systemf(OUT_NAME);
     } else if (arg_eq(argc, argv, 1, "d")) {
       systemf("gdb ./" OUT_NAME);
     }

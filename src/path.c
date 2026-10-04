@@ -6,6 +6,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#define PATH_MAX MAX_PATH
+#endif
+
 // Returns false if the normalized path would not fit in PATH_MAX.
 bool file_path_resolve(dyn_string_t *str) {
   char tmp_path[PATH_MAX + 1];

@@ -58,7 +58,7 @@ static bool _internal_array_set_capacity(void **arr_ptr, size_t new_capacity) {
   return true;
 }
 
-inline void _internal_array_add(void **arr_ptr, void *item) {
+void _internal_array_add(void **arr_ptr, void *item) {
   if (!arr_ptr || !*arr_ptr || !item) panic("array_add invalid args");
 
   _InternalArrayHeader *h = ((_InternalArrayHeader *)*arr_ptr) - 1;

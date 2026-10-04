@@ -3,6 +3,8 @@
 #include "../include/log.h"
 #include "../include/path.h"
 #include "../include/alloc.h"
+#include "../include/panic.h"
+#include "../include/todo.h"
 
 int main(void) {
   dyn_string_t path = {0};
@@ -15,4 +17,7 @@ int main(void) {
   char *file_path_str = path.string;
 
   log_debug("File path: %s", file_path_str);
+
+  panic("w");
+  todo();
 }
