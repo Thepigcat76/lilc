@@ -41,8 +41,8 @@ struct deque_header {
     _internal_deque_push_back((void **) &_deque, &item);                                 \
   } while (0)
 
-#define deque_foreach(deque, var) for (unsigned long *\
-           _internal_deque_header = (unsigned long *)(((struct deque_header *)(deque)) - 1),\
+#define deque_foreach(deque, var) for (unsigned long long *\
+           _internal_deque_header = (unsigned long long *)(((struct deque_header *)(deque)) - 1),\
           _internal_deque_idx = ((var) = deque_front(deque), 0);\
        _internal_deque_idx < ((struct deque_header *)_internal_deque_header)->len;\
        (++_internal_deque_idx, (var) = deque_at(deque, _internal_deque_idx)))

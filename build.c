@@ -42,6 +42,11 @@ static void visit_lib_entry(struct file_entry entry) {
   cmd_appendf(&lib_compile_cmd, "-g");
   cmd_appendf(&lib_compile_cmd, "-c");
   cmd_appendf(&lib_compile_cmd, "-std=%s", STANDARD);
+
+#ifdef _WIN32
+  cmd_appendf(&lib_compile_cmd, "-D_CRT_SECURE_NO_WARNINGS");
+#endif
+
   // Output location
   cmd_appendf(&lib_compile_cmd, "-o");
 
@@ -74,7 +79,7 @@ int main(int argc, char **argv) {
 
   if (build_test) {
     // Make sure out path exists
-    ensure_parent_dirs(OUT_NAME, 0755);
+    ensure_parent_dirs(OUT_NAME);
 
     cmd_appendf(&cmd, COMPILER);
     // Flags
@@ -97,7 +102,7 @@ int main(int argc, char **argv) {
     }
   } else {
     // Make sure out path exists
-    ensure_parent_dirs(LIB_OUT_NAME, 0755);
+    ensure_parent_dirs(LIB_OUT_NAME);
 
     cmd_appendf(&cmd, "ar rcs " LIB_OUT_NAME);
 
@@ -118,12 +123,14 @@ static void copy_lib_header_file(struct file_entry file) {
 }
 
 static void lib_install(void) {
+#ifndef _WIN32
   if (geteuid() != 0) {
     fprintf(stderr, "Please run the install step with sudo.\n");
     exit(EXIT_FAILURE);
   }
+#endif
 
-  make_dirs(INSTALL_INCLUDE_DIR, 0755);
+  make_dirs(INSTALL_INCLUDE_DIR);
 
   walk_dir(INCLUDE_DIR, copy_lib_header_file);
 

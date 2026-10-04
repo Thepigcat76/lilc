@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef __SSIZE_T_TYPE
-#define __SSIZE_T_TYPE signed long
+#define __SSIZE_T_TYPE signed long long
 #endif
 
 typedef unsigned char uchar;

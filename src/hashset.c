@@ -47,7 +47,7 @@ void _internal_hashset_init(hashset_t *hashset, allocator_t *alloc, usz capacity
 }
 
 void hashset_deinit(hashset_t *hashset) {
-  for (size_t i = 0; i < hashset->_internal_set->capacity; i++) {
+  for (usz i = 0; i < hashset->_internal_set->capacity; i++) {
     struct _internal_hashset_node *value_node =
         &hashset->_internal_set->values[i];
 
@@ -64,14 +64,14 @@ void hashset_clear(hashset_t *hashset) {
   hashset->len = 0;
 }
 
-static ssize_t
+static isz
 _internal_hashset_node_contains_val(const struct _internal_hashset_node *node,
                                     const void *val,
                                     const struct _internal_hashset *h) {
   if (node->values == NULL)
     return -1;
 
-  for (size_t i = 0; i < array_len(node->values); i++) {
+  for (usz i = 0; i < array_len(node->values); i++) {
     void *val_at_index = (void *)((u8 *)node->values) + i * h->val_type_size;
     if (h->val_eq_func(val, val_at_index)) {
       return i;
@@ -85,7 +85,7 @@ bool hashset_insert(hashset_t *hashset, void *val) {
     return false;
 
   int hash = hashset->_internal_set->val_hash_func(val);
-  size_t index = hash % hashset->_internal_set->capacity;
+  usz index = hash % hashset->_internal_set->capacity;
 
   struct _internal_hashset_node *node = &hashset->_internal_set->values[index];
 
@@ -95,7 +95,7 @@ bool hashset_insert(hashset_t *hashset, void *val) {
   }
 
   // Check if val is present
-  size_t val_index =
+  isz val_index =
       _internal_hashset_node_contains_val(node, val, hashset->_internal_set);
   if (val_index == -1) {
     // val is not present

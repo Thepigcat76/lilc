@@ -1,32 +1,47 @@
 
 #include "../include/alloc.h"
 #include "../include/panic.h"
+#include <oleidl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static void *heap_allocator_alloc(allocator_t *allocator, size_t bytes) {
+  (void)allocator;
   return malloc(bytes);
 }
 
 static void heap_allocator_dealloc(allocator_t *allocator, void *ptr) {
+  (void)allocator;
   free(ptr);
 }
 
 static void *heap_allocator_realloc(allocator_t *allocator, void *prev_ptr,
                                     size_t old_size, size_t new_size) {
+  (void)allocator;
+  (void)old_size;
+
   return realloc(prev_ptr, new_size);
 }
 
 static void *null_allocator_alloc(allocator_t *allocator, size_t bytes) {
+  (void)allocator;
+  (void)bytes;
   return NULL;
 }
 
-static void null_allocator_dealloc(allocator_t *allocator, void *ptr) {}
+static void null_allocator_dealloc(allocator_t *allocator, void *ptr) {
+  (void) allocator;
+  (void) ptr;
+}
 
 static void *null_allocator_realloc(allocator_t *allocator, void *prev_ptr,
                                     size_t old_size, size_t new_size) {
+  (void) allocator;
+  (void) prev_ptr;
+  (void) old_size;
+  (void) new_size;
   return NULL;
 }
 
