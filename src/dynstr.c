@@ -7,17 +7,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void dyn_string_ensure_cap(dyn_string_t *str, usz expected_unterm_cap) {
-  if (str->capacity <= expected_unterm_cap + 1) {
-    if (str->capacity * 2 >= expected_unterm_cap + 1) {
+bool dyn_string_ensure_size(dyn_string_t *str, usz expected_size) {
+  if (str->capacity <= expected_size) {
+    if (str->capacity * 2 >= expected_size) {
       str->capacity *= 2;
     } else {
-      str->capacity = expected_unterm_cap + 1;
+      str->capacity = expected_size;
     }
 
     str->string = str->allocator->realloc(str->allocator, str->string,
                                           str->term_len, str->capacity);
+    return true;
   }
+
+  return false;
+}
+
+bool dyn_string_resize(dyn_string_t *str, usz new_size) {
+  if (str->capacity < new_size) {
+    str->capacity = new_size;
+
+    str->string = str->allocator->realloc(str->allocator, str->string,
+                                          str->term_len, str->capacity);
+    return true;
+  }
+
+  return false;
 }
 
 #define DEFAULT_CAPACITY 16
@@ -33,7 +48,7 @@ void dyn_string_init(dyn_string_t *str, allocator_t *allocator) {
 }
 
 void dyn_string_add_char(dyn_string_t *str, char c) {
-  dyn_string_ensure_cap(str, str->len + 1);
+  dyn_string_ensure_size(str, str->term_len + 1);
 
   str->string[str->len] = c;
   str->string[str->term_len] = '\0';
@@ -42,12 +57,12 @@ void dyn_string_add_char(dyn_string_t *str, char c) {
   str->term_len++;
 }
 
-void dyn_string_add_str(dyn_string_t *str, const char *c) {
-  usz len = strlen(c);
-  dyn_string_ensure_cap(str, len);
+void dyn_string_add_str(dyn_string_t *str, const char *new_str) {
+  usz len = strlen(new_str);
+  dyn_string_ensure_size(str, str->len + len + 1);
 
   for (usz i = 0; i < len; i++) {
-    str->string[str->len] = c[i];
+    str->string[str->len] = new_str[i];
     str->len++;
     str->term_len++;
   }
@@ -66,7 +81,7 @@ static bool dyn_string_vprintf(dyn_string_t *str, usz append_idx,
     return false;
   }
 
-  dyn_string_ensure_cap(str, append_idx + len);
+  dyn_string_ensure_size(str, append_idx + len + 1);
 
   vsnprintf(str->string + append_idx, len + 1, fmt, args);
 

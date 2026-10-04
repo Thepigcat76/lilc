@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-static void deque_foreach_expanded(void *deque, void **elem) {
-}
-
 void _internal_deque_init(void **deque_ptr, size_t item_size, size_t capacity,
                           allocator_t *allocator) {
   struct deque_header *deque = allocator->alloc(
@@ -36,7 +33,7 @@ static void _internal_deque_resize(void **deque_ptr, size_t new_capacity) {
       sizeof(struct deque_header) + header->capacity * header->item_size);
   memcpy(new_header, header, sizeof(struct deque_header));
 
-  void *new_deque = new_header + 1;
+  u8 *new_deque = (u8 *) (new_header + 1);
 
   size_t front_elems_amount =
       (old_header.capacity - old_header.head_index) % old_header.capacity;
@@ -61,6 +58,14 @@ static void _internal_deque_resize(void **deque_ptr, size_t new_capacity) {
   new_header->head_index = new_header->capacity - front_elems_amount;
 
   *deque_ptr = new_deque;
+}
+
+void deque_reset(void *deque) {
+  struct deque_header *header = (((struct deque_header *) deque) - 1);
+
+  header->len = 0;
+  header->head_index = 0;
+  header->tail_index = 0;
 }
 
 void _internal_deque_push_front(void **deque_ptr, void *item) {
